@@ -1,0 +1,42 @@
+# --- Carpetas generadas por Unity (No subir) ---
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+
+# --- Archivos generados por IDEs (Visual Studio / VSCode) ---
+.vs/
+.vscode/
+/*.csproj
+/*.unityproj
+/*.sln
+/*.suo
+/*.tmp
+/*.user
+/*.userprefs
+/*.pidb
+/*.booproj
+/*.svd
+/*.pdb
+/*.opendb
+/*.VC.db
+
+# --- Archivos del Sistema Operativo ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- Archivos pesados de diseño (Tu problema actual) ---
+# Ignoramos los PSD para evitar el error de 100MB+ de GitHub
+*.psd
+# Opcional: Ignorar Tiff o EXR si no los necesitas en el repo
+*.tiff
+*.exr
