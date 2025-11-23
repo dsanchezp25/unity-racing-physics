@@ -64,5 +64,4 @@ Las contribuciones son bienvenidas. Algunas ideas para mejorar el proyecto:
 * [ ] Crear un sistema de cambio de cámara.
 
 ---
-*Desarrollado por [dsanchezp25](https://github.com/dsanchezp25)*
-*Desarrollado por [Ccrespo7](https://github.com/Ccrespo7)*
+*Desarrollado por [dsanchezp25](https://github.com/dsanchezp25) y [Ccrespo7](https://github.com/Ccrespo7)*
