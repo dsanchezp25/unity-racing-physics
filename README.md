@@ -8,7 +8,7 @@ Repositorio de simulación de vehículos en Unity que implementa, evoluciona y c
 
 🔗 **Repo URL:** https://github.com/dsanchezp25/unity-racing-physics
 
-![Drift Demo](./Assets/Images/gif_coche.gif)
+![Drift Demo](./Assets/Images/gif_coche.gif)  
 *Demostración del sistema de físicas, partículas y marcas de neumático.*
 
 ## 📸 Galería
