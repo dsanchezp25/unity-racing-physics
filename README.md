@@ -8,12 +8,21 @@ Repositorio de simulación de vehículos en Unity que implementa, evoluciona y c
 
 🔗 **Repo URL:** https://github.com/dsanchezp25/unity-racing-physics
 
+![Drift Demo](./Assets/Images/gif_coche.gif)
+*Demostración del sistema de físicas, partículas y marcas de neumático.*
+
 ## 📸 Galería
 
-| Drift Nocturno | Iluminación Dinámica |
-| :---: | :---: |
-| ![Drift](https://via.placeholder.com/400x200?text=Captura+Drift+con+Humo) | ![Luces](https://via.placeholder.com/400x200?text=Luces+Freno+y+Bloom) |
+| Menú de Selección |
+| :---: |
+| ![Menu](./Assets/Images/menuPrincipal.png) |
 
+### Variantes del Circuito (Ciclo Día/Noche)
+El juego adapta la iluminación global según el circuito seleccionado:
+
+| Circuito 1 (Día) | Circuito 2 (Atardecer) | Circuito 3 (Noche) |
+| :---: | :---: | :---: |
+| ![Dia](./Assets/Images/circuito1.png) | ![Tarde](./Assets/Images/circuito2.png) | ![Noche](./Assets/Images/circuito3.png) |
 *(Nota: Reemplazar estos links con capturas reales de la carpeta Assets para mostrar el Post-Processing)*
 
 ## 🌟 Arquitecturas de Física
