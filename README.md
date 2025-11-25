@@ -72,14 +72,14 @@ flowchart TD
 ### Flujo de Datos (Menú a Carrera)
 ```mermaid
 flowchart TD
-    Menu[MenuPrincipal] -- Guarda Elección (INT) --> PlayerPrefs[Caja Fuerte Compartida]
-    Menu -- Inicia Coroutine (Fade) --> SceneLoad(SceneManager.LoadScene)
+    Menu[MenuPrincipal] -- Guarda Elección INT --> PlayerPrefs[Caja Fuerte Compartida]
+    Menu -- Inicia Coroutine Fade --> SceneLoad("SceneManager.LoadScene")
     SceneLoad --> Game[Circuito_Realista]
-    Game --> Gestor[GestorDeCarrera.Start()]
+    Game --> Gestor["GestorDeCarrera.Start()"]
     Gestor -->|Lee Modo| PlayerPrefs
     Gestor -->|Set Hora/Muros| Lights/Barriers
     
-    Trigger[Meta Cruzada] --> Gestor{NuevaVuelta()}
+    Trigger[Meta Cruzada] --> MethodCall{"NuevaVuelta()"}
 ```
 
 ## 🕹️ Controles (Acción / Tecla)
