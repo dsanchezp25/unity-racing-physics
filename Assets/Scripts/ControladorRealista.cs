@@ -1,7 +1,14 @@
 using UnityEngine;
+using TMPro;           // NECESARIO para el texto
+using UnityEngine.UI;  // NECESARIO para la barra
 
 public class ControladorRealista : MonoBehaviour
 {
+    [Header("Interfaz Velocímetro")]
+    public TMP_Text textoVelocidad; 
+    public Image barraVelocidad;    
+    // ---------------------------------------
+
     [Header("Referencias")]
     public WheelCollider colFL; public WheelCollider colFR;
     public WheelCollider colRL; public WheelCollider colRR;
@@ -15,11 +22,7 @@ public class ControladorRealista : MonoBehaviour
     [Header("Motor Realista")]
     public float fuerzaMotor = 2500f; 
     public float velocidadMaxima = 200f;
-    public AnimationCurve curvaPotencia = new AnimationCurve(
-        new Keyframe(0, 1),    
-        new Keyframe(0.5f, 0.8f), 
-        new Keyframe(1, 0.2f)  
-    );
+    public AnimationCurve curvaPotencia = new AnimationCurve(new Keyframe(0, 1), new Keyframe(0.5f, 0.8f), new Keyframe(1, 0.2f));
 
     [Header("Frenos y Drift")]
     public float fuerzaFreno = 6000f; 
@@ -45,7 +48,6 @@ public class ControladorRealista : MonoBehaviour
         rb.mass = 1500f;
         rb.linearDamping = 0.02f; 
         rb.angularDamping = 3f;  
-        
         if (centroDeMasa != null) rb.centerOfMass = centroDeMasa.localPosition;
     }
 
@@ -56,77 +58,52 @@ public class ControladorRealista : MonoBehaviour
         bool frenoMano = Input.GetKey(KeyCode.Space);
         float velocidadKmh = rb.linearVelocity.magnitude * 3.6f;
 
-        // --- 1. POTENCIA ---
-        float factorVelocidad = Mathf.Clamp01(velocidadKmh / velocidadMaxima);
-        float multiplicadorPotencia = curvaPotencia.Evaluate(factorVelocidad);
+        // Motor
+        float factorVel = Mathf.Clamp01(velocidadKmh / velocidadMaxima);
+        float torque = (velocidadKmh < velocidadMaxima && !frenoMano) ? v * fuerzaMotor * curvaPotencia.Evaluate(factorVel) : 0;
+        colFL.motorTorque = torque; colFR.motorTorque = torque; colRL.motorTorque = torque; colRR.motorTorque = torque;
 
-        float torque = 0;
-        if (velocidadKmh < velocidadMaxima && !frenoMano)
-        {
-            torque = v * fuerzaMotor * multiplicadorPotencia;
-        }
-
-        colFL.motorTorque = torque; colFR.motorTorque = torque;
-        colRL.motorTorque = torque; colRR.motorTorque = torque;
-
-        // --- 2. DIRECCIÓN ---
+        // Dirección
         inputGiroSuave = Mathf.MoveTowards(inputGiroSuave, h, Time.fixedDeltaTime * velocidadVolante);
-        float anguloMax = Mathf.Lerp(anguloGiroLento, anguloGiroRapido, velocidadKmh / 120f);
-        float steer = inputGiroSuave * anguloMax;
+        float steer = inputGiroSuave * Mathf.Lerp(anguloGiroLento, anguloGiroRapido, velocidadKmh / 120f);
         colFL.steerAngle = steer; colFR.steerAngle = steer;
 
-        // --- 3. DRIFT ---
-        ControlarDerrape(colRL, frenoMano);
-        ControlarDerrape(colRR, frenoMano);
-
-        // --- 4. FRENOS ---
+        // Drift y Frenos
+        ControlarDerrape(colRL, frenoMano); ControlarDerrape(colRR, frenoMano);
+        
         float freno = 0;
-        if (frenoMano) 
-        {
-            colRL.brakeTorque = fuerzaFrenoMano; colRR.brakeTorque = fuerzaFrenoMano;
-            colFL.brakeTorque = 0; colFR.brakeTorque = 0;
-        }
-        else 
-        {
+        if (frenoMano) { colRL.brakeTorque = fuerzaFrenoMano; colRR.brakeTorque = fuerzaFrenoMano; colFL.brakeTorque = 0; colFR.brakeTorque = 0; }
+        else {
             if (v == 0) freno = 100f;
             else if (Vector3.Dot(rb.linearVelocity, transform.forward) > 1f && v < 0) freno = fuerzaFreno;
-            
-            colFL.brakeTorque = freno; colFR.brakeTorque = freno;
-            colRL.brakeTorque = freno; colRR.brakeTorque = freno;
+            colFL.brakeTorque = freno; colFR.brakeTorque = freno; colRL.brakeTorque = freno; colRR.brakeTorque = freno;
         }
 
-        // --- 5. LUCES DE FRENO ---
-        bool estaFrenando = false;
+        // Luces
+        bool frenando = frenoMano || (v < 0 && Vector3.Dot(rb.linearVelocity, transform.forward) > 1f);
+        if (luzFrenoIzq) luzFrenoIzq.enabled = frenando;
+        if (luzFrenoDer) luzFrenoDer.enabled = frenando;
 
-        if (frenoMano) estaFrenando = true;
-        else if (v < 0 && Vector3.Dot(rb.linearVelocity, transform.forward) > 1f) estaFrenando = true;
-        else if (v == 0 && rb.linearVelocity.magnitude < 1f) estaFrenando = false;
+        // --- ACTUALIZAR UI (AQUÍ ESTÁ LA MAGIA) ---
+        if (textoVelocidad != null) textoVelocidad.text = velocidadKmh.ToString("F0");
+        if (barraVelocidad != null) {
+            barraVelocidad.fillAmount = velocidadKmh / velocidadMaxima;
+            barraVelocidad.color = Color.Lerp(Color.cyan, Color.red, barraVelocidad.fillAmount);
+        }
 
-        if (luzFrenoIzq != null) luzFrenoIzq.enabled = estaFrenando;
-        if (luzFrenoDer != null) luzFrenoDer.enabled = estaFrenando;
-
-        // --- ANTI-VUELO (AHORA SÍ ESTÁ DENTRO) ---
+        // Anti-Vuelo
         rb.AddForce(-transform.up * downforce * rb.linearVelocity.magnitude);
-
-    } // <--- AQUÍ se cierra el FixedUpdate correctamente
-
-    void ControlarDerrape(WheelCollider rueda, bool activado)
-    {
-        WheelFrictionCurve roce = rueda.sidewaysFriction;
-        roce.stiffness = activado ? agarreDrift : Mathf.MoveTowards(roce.stiffness, agarreNormal, Time.fixedDeltaTime * 5f);
-        rueda.sidewaysFriction = roce;
     }
 
-    void Update()
-    {
-        SincronizarRueda(colFL, visualFL); SincronizarRueda(colFR, visualFR);
-        SincronizarRueda(colRL, visualRL); SincronizarRueda(colRR, visualRR);
+    void ControlarDerrape(WheelCollider rueda, bool activado) {
+        WheelFrictionCurve c = rueda.sidewaysFriction;
+        c.stiffness = activado ? agarreDrift : Mathf.MoveTowards(c.stiffness, agarreNormal, Time.fixedDeltaTime * 5f);
+        rueda.sidewaysFriction = c;
     }
 
-    void SincronizarRueda(WheelCollider col, Transform visual)
-    {
-        Vector3 pos; Quaternion rot;
-        col.GetWorldPose(out pos, out rot);
-        visual.position = pos; visual.rotation = rot;
+    void Update() {
+        Sincronizar(colFL, visualFL); Sincronizar(colFR, visualFR);
+        Sincronizar(colRL, visualRL); Sincronizar(colRR, visualRR);
     }
+    void Sincronizar(WheelCollider c, Transform t) { Vector3 p; Quaternion r; c.GetWorldPose(out p, out r); t.position = p; t.rotation = r; }
 }
