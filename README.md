@@ -26,37 +26,30 @@ El juego adapta la iluminación global según el circuito seleccionado:
 *(Nota: Reemplazar estos links con capturas reales de la carpeta Assets para mostrar el Post-Processing)*
 
 ## 🌟 Arquitecturas de Física
+### 1. Sistema Realista (`ControladorRealista.cs`) — (Activo actualmente)
+Es el núcleo de la aplicación. Utiliza el sistema nativo de suspensión y fricción de **Unity WheelColliders** para simular la transferencia de pesos y la suspensión real.
 
-El proyecto contiene dos sistemas de control independientes para explorar diferentes sensaciones de conducción:
-
-### 1. Sistema Arcade (`ControladorLancer.cs`)
-Diseñado para una jugabilidad directa y permisiva, estilo *Mario Kart* o *Need for Speed* antiguo.
-
-- **Física Custom (Raycast):** Evita el uso de ruedas físicas complejas. Utiliza rayos para detectar el suelo y aplica fuerzas vectoriales directas.
-- **Drift Asistido:** Interpolación lineal (`Mathf.Lerp`) entre fricción normal y deslizamiento al usar el freno de mano.
-- **Anti-Vuelo:** Sistema de *Downforce* basado en detección de suelo para evitar que el coche "despegue" en rampas o baches.
-
-### 2. Sistema Realista (`ControladorRealista.cs`) — (Activo actualmente)
-Diseñado para simulación técnica, transferencia de pesos y físicas emergentes.
-
-- **Unity WheelColliders:** Utiliza el sistema nativo de suspensión y fricción de Unity.
 - **Motor con Curva de Potencia:** Simulación de entrega de par motor no lineal mediante `AnimationCurve`.
-- **Dirección Progresiva:** El ángulo de giro del volante se reduce dinámicamente según la velocidad.
-- **Ayudas a la Conducción:** Suavizado de input y estabilizadores angulares para control con teclado.
+- **Drift/Handbrake:** La fricción lateral de las ruedas traseras se modifica dinámicamente al pulsar la barra espaciadora (`stiffness` baja drásticamente).
+- **Control Progresivo:** El ángulo de giro del volante se reduce dinámicamente a alta velocidad para evitar el sobreviraje.
+- **Estabilidad:** Implementación de *Downforce* y ajuste de **Centro de Masas** para evitar vuelcos en curvas.
+
+### 2. Estructura de Interfaz (UI/UX)
+- **Menú Principal & Pausa:** Transición suave entre escenas (`Fade Out`) y menú de pausa funcional con control de `Time.timeScale` y `AudioListener.pause`.
+- **Lap Timer & Best Lap:** Contador de tiempo en pantalla que registra y muestra el tiempo de vuelta más rápido.
+- **Velocímetro:** UI digital (`TextMeshPro`) con barra de progreso circular dinámica (cambia de color de cian a rojo según la velocidad).
 
 ## 🎨 Gráficos y Entorno (VFX)
 
-- **Ciclo Día/Noche:** `CicloDiaNoche.cs` que rota la iluminación global en tiempo real.
-- **Post-Procesado:** Perfil de *Global Volume* con **Bloom**, **Motion Blur** y **Tonemapping ACES**.
-- **Feedback Visual:**
-  - **Luces de Freno:** `Point Lights` rojas que reaccionan a la frenada y al freno de mano.
-  - **Partículas:** Humo volumétrico en las ruedas traseras al perder tracción.
-  - **Skidmarks:** `TrailRenderer` que pinta marcas en el asfalto.
-- **UI:** Velocímetro digital en tiempo real (km/h) usando TextMeshPro.
+- **Post-Procesado Avanzado:** Perfil de *Global Volume* configurado con **Bloom** (para halos de luz), **Motion Blur** (sensación de velocidad) y **Tonemapping ACES** (para un color cinematográfico).
+- **Ciclo Día/Noche Controlado:** El script `CicloDiaNoche.cs` permite forzar horas específicas (12:00, 18:00, 23:00) o aleatorias para las carreras.
+- **Faros Dinámicos:** Las luces delanteras (`Spot Lights`) se activan automáticamente al anochecer.
+- **Partículas:** Humo volumétrico y `TrailRenderer` para marcas de derrape, ambos activados mediante el `sidewaysSlip` de la rueda.
 
-## 🧠 Lógica de Juego
+## 🧠 Lógica de Pista y Flujo de Juego
 
-- **Circuito Dinámico:** `SelectorDeCamino.cs` para bloquear rutas alternativas al inicio de la carrera.
+- **Circuito Dinámico:** El sistema `GestorDeCarrera.cs` lee la elección del menú y desactiva las barreras que no se usarán. En el modo cambiante, la ruta se elige aleatoriamente al cruzar la meta.
+- **Contador de Vueltas:** Sistema de `DetectorMeta.cs` que comunica al Gestor la finalización de una vuelta, actualizando el contador y la lógica de cambio de circuito.
 - **Sistema de Respawn:** Reinicia posición y rotación si el coche vuelca.
 
 ## 📐 Diagramas Técnicos
@@ -75,6 +68,18 @@ flowchart TD
 
     D3 -->|Hijo| F["💨 Humo + 🏁 Marca Suelo"]
     D4 -->|Hijo| G["💨 Humo + 🏁 Marca Suelo"]
+```
+### Flujo de Datos (Menú a Carrera)
+```mermaid
+flowchart TD
+    Menu[MenuPrincipal] -- Guarda Elección (INT) --> PlayerPrefs[Caja Fuerte Compartida]
+    Menu -- Inicia Coroutine (Fade) --> SceneLoad(SceneManager.LoadScene)
+    SceneLoad --> Game[Circuito_Realista]
+    Game --> Gestor[GestorDeCarrera.Start()]
+    Gestor -->|Lee Modo| PlayerPrefs
+    Gestor -->|Set Hora/Muros| Lights/Barriers
+    
+    Trigger[Meta Cruzada] --> Gestor{NuevaVuelta()}
 ```
 
 ## 🕹️ Controles (Acción / Tecla)
@@ -104,25 +109,8 @@ git clone https://github.com/dsanchezp25/unity-racing-physics.git
 
 ### 3. Jugar
 1. Ve a `Assets/Scenes`.
-2. Abre la escena **Circuito_Version_Realista**.
+2. Abre la escena **MenuPrincipal**.
 3. Dale al **Play**.
-
----
-
-## 📂 Estructura de Carpetas y Scripts
-
-### `Assets/Scripts/`
-- `ControladorRealista.cs` — Lógica principal del vehículo (Motor, Suspensión, Luces).
-- `EfectosRueda.cs` — Control de partículas y huellas.
-- `SistemaRespawn.cs` — Reinicio de posición.
-- `CicloDiaNoche.cs` — Rotación del sol.
-- `SelectorDeCamino.cs` — Lógica del circuito dinámico.
-
-### `Assets/Prefabs/`
-- Vehículos configurados (ej. `Lancer_Realista`).
-
-### `Assets/Materials/`
-- Materiales físicos y visuales (Partículas, Trail).
 
 ---
 
