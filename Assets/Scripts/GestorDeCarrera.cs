@@ -21,6 +21,9 @@ public class GestorDeCarrera : MonoBehaviour
     public GameObject grupoTriggersManuales;
     public CicloDiaNoche controladorSol; 
 
+    [Header("CONEXIÓN CINEMÁTICA")] // --- NUEVO ---
+    public GestorFinal gestorFinal; // Aquí arrastrarás tu objeto MANAGER_FINAL
+
     [Header("Audio")]
     public AudioClip sonidoArranque;
 
@@ -129,12 +132,23 @@ public class GestorDeCarrera : MonoBehaviour
         if(controladorSol) controladorSol.PonerHoraAleatoria();
     }
 
+    // --- MODIFICADO: AHORA LLAMA AL GESTOR FINAL ---
     void TerminarCarrera()
     {
         carreraTerminada = true;
-        if(textoVueltas) textoVueltas.text = "FIN!";
-        if(panelVictoria) panelVictoria.SetActive(true);
         Debug.Log("🏆 CARRERA TERMINADA");
+
+        // Si tenemos conectado el gestor de cinemáticas, lo usamos
+        if (gestorFinal != null)
+        {
+            gestorFinal.ActivarFinal();
+        }
+        else 
+        {
+            // Plan B por si se te olvidó conectar el gestor (para que no de error)
+            if(textoVueltas) textoVueltas.text = "FIN!";
+            if(panelVictoria) panelVictoria.SetActive(true);
+        }
     }
 
     // --- UTILIDADES ---

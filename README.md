@@ -1,10 +1,10 @@
-# 🏎️ Unity Racing Physics & Drift Simulator
+# 🏎️ Unity Racing: JDM Drift & Cinematic Experience
 
 ![Unity Version](https://img.shields.io/badge/Unity-6%2B-000000.svg?style=flat&logo=unity)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Status](https://img.shields.io/badge/Status-Active-success.svg)
 
-Repositorio de simulación de vehículos en Unity que implementa, evoluciona y compara dos arquitecturas de físicas distintas: **Arcade (Raycast)** vs **Simulación (WheelCollider)**. Este proyecto sirve como base para juegos de carreras con mecánicas de drift avanzadas, efectos visuales dinámicos y lógica de circuito inteligente.
+Simulador de carreras estilo Low-Poly / Arcade desarrollado en Unity. Este proyecto combina físicas de vehículos basadas en WheelColliders con una fuerte dirección artística inspirada en la cultura JDM, integrando cinemáticas en tiempo real, gestión de eventos (Boxes/Victoria) y una interfaz de usuario reactiva.
 
 🔗 **Repo URL:** https://github.com/dsanchezp25/unity-racing-physics
 
@@ -25,61 +25,71 @@ El juego adapta la iluminación global según el circuito seleccionado:
 | ![Dia](./Assets/Images/circuito1.png) | ![Tarde](./Assets/Images/circuito2.png) | ![Noche](./Assets/Images/circuito3.png) |
 *(Nota: Reemplazar estos links con capturas reales de la carpeta Assets para mostrar el Post-Processing)*
 
-## 🌟 Arquitecturas de Física
-### 1. Sistema Realista (`ControladorRealista.cs`) — (Activo actualmente)
-Es el núcleo de la aplicación. Utiliza el sistema nativo de suspensión y fricción de **Unity WheelColliders** para simular la transferencia de pesos y la suspensión real.
+## ✨ Características Principales
 
-- **Motor con Curva de Potencia:** Simulación de entrega de par motor no lineal mediante `AnimationCurve`.
-- **Drift/Handbrake:** La fricción lateral de las ruedas traseras se modifica dinámicamente al pulsar la barra espaciadora (`stiffness` baja drásticamente).
-- **Control Progresivo:** El ángulo de giro del volante se reduce dinámicamente a alta velocidad para evitar el sobreviraje.
-- **Estabilidad:** Implementación de *Downforce* y ajuste de **Centro de Masas** para evitar vuelcos en curvas.
+### 1. Físicas y Control (`ControladorRealista.cs`)
+El núcleo de la conducción busca el equilibrio entre simulación y diversión arcade:
+- **WheelCollider Nativo:** Simulación de suspensión, fricción y transferencia de pesos.
+- **Drift Asistido:** Modificación dinámica de la curva de fricción (`stiffness`) al usar el freno de mano.
+- **Curva de Potencia:** Entrega de par motor no lineal mediante `AnimationCurve`.
+- **Ayudas a la Conducción:** Contravolante suavizado y reducción de ángulo de giro a altas velocidades.
 
-### 2. Estructura de Interfaz (UI/UX)
-- **Menú Principal & Pausa:** Transición suave entre escenas (`Fade Out`) y menú de pausa funcional con control de `Time.timeScale` y `AudioListener.pause`.
-- **Lap Timer & Best Lap:** Contador de tiempo en pantalla que registra y muestra el tiempo de vuelta más rápido.
-- **Velocímetro:** UI digital (`TextMeshPro`) con barra de progreso circular dinámica (cambia de color de cian a rojo según la velocidad).
+### 2. Experiencia Cinematográfica (NUEVO)
+El juego deja de ser una cámara estática para convertirse en una experiencia dirigida:
+- **Sistema de Boxes (Pit Stop):**
+  - **Entrada Automática:** Al entrar al trigger, la IA toma el control y aparca el coche suavemente.
+  - **Cámaras TV:** Corte a cámara lateral a ras de suelo para enfatizar la acción.
+  - **Pit Crew Animado:** Mecánicos (Mixamo) sincronizados que aparecen instantáneamente. Incluye lógica de *Easter Egg* ("Mecánico Torpe") con timing ajustado.
+  - **Launch Control:** Salida impulsada con física tras la reparación.
+- **Secuencia de Victoria:**
+  - Al completar las vueltas, el juego transiciona al **Podio**.
+  - Teletransporte del coche, activación de focos, confeti y personaje animado celebrando (bucle infinito).
+  - Retorno automático al menú principal tras la celebración.
 
-## 🎨 Gráficos y Entorno (VFX)
+### 3. Interfaz de Usuario "JDM Style"
+Rediseño total de la UI para transmitir velocidad y agresividad:
+- **Menú Principal:** Diseño inclinado (Slanted UI), paleta de colores de alto contraste y animaciones *hover* reactivas.
+- **HUD In-Game:**
+  - **Velocímetro Digital:** Texto de gran formato inclinado.
+  - **Barra de RPM:** Feedback visual de la potencia del motor.
+  - **Panel de Tiempos:** Caja estilizada con tiempos de vuelta y mejor vuelta.
 
-- **Post-Procesado Avanzado:** Perfil de *Global Volume* configurado con **Bloom** (para halos de luz), **Motion Blur** (sensación de velocidad) y **Tonemapping ACES** (para un color cinematográfico).
-- **Ciclo Día/Noche Controlado:** El script `CicloDiaNoche.cs` permite forzar horas específicas (12:00, 18:00, 23:00) o aleatorias para las carreras.
-- **Faros Dinámicos:** Las luces delanteras (`Spot Lights`) se activan automáticamente al anochecer.
-- **Partículas:** Humo volumétrico y `TrailRenderer` para marcas de derrape, ambos activados mediante el `sidewaysSlip` de la rueda.
 
-## 🧠 Lógica de Pista y Flujo de Juego
+## 🛠️ Arquitectura Técnica
 
-- **Circuito Dinámico:** El sistema `GestorDeCarrera.cs` lee la elección del menú y desactiva las barreras que no se usarán. En el modo cambiante, la ruta se elige aleatoriamente al cruzar la meta.
-- **Contador de Vueltas:** Sistema de `DetectorMeta.cs` que comunica al Gestor la finalización de una vuelta, actualizando el contador y la lógica de cambio de circuito.
-- **Sistema de Respawn:** Reinicia posición y rotación si el coche vuelca.
+### Gestión de Carrera (`GestorDeCarrera.cs` + `GestorFinal.cs`)
+El juego utiliza un patrón de "Directores" para manejar el estado del juego:
+1. **GestorDeCarrera:** Controla vueltas, tiempos y lógica de circuito (barreras/ciclo día-noche).
+2. **PitStopManager:** Orquesta la corrutina de parada (Control IA -> Animaciones -> Cámaras -> Físicas).
+   - *Feature destacada:* Sistema de **"Posición Reset"** para los mecánicos, evitando el desplazamiento por *Root Motion* en paradas sucesivas.
+3. **GestorFinal:** Se activa al cruzar la meta en la última vuelta, apagando la lógica de carrera y lanzando la cinemática de victoria.
 
-## 📐 Diagramas Técnicos
-
-### Jerarquía del Vehículo
+### Diagrama de Flujo de Estados
 
 ```mermaid
-flowchart TD
-    A["🚙 Mitsubishi_Lancer_GSR"] -->|Tiene| B("Rigidbody + ControladorRealista")
-    A -->|Hijos| C("Luces de Freno PointLights")
-    A --> D{"ColisionadoresRuedas"}
-    A --> E{"VisualesRuedas"}
-
-    D -->|Física| D1["WC_FL"] & D2["WC_FR"]
-    D -->|Física| D3["WC_RL"] & D4["WC_RR"]
-
-    D3 -->|Hijo| F["💨 Humo + 🏁 Marca Suelo"]
-    D4 -->|Hijo| G["💨 Humo + 🏁 Marca Suelo"]
-```
-### Flujo de Datos (Menú a Carrera)
-```mermaid
-flowchart TD
-    Menu[MenuPrincipal] -- Guarda Elección (INT) --> PlayerPrefs[Caja Fuerte Compartida]
-    Menu -- Inicia Coroutine (Fade) --> SceneLoad(SceneManager.LoadScene)
-    SceneLoad --> Game[Circuito_Realista]
-    Game --> Gestor[GestorDeCarrera.Start()]
-    Gestor -->|Lee Modo| PlayerPrefs
-    Gestor -->|Set Hora/Muros| Lights/Barriers
+stateDiagram-v2
+    [*] --> MenuPrincipal
+    MenuPrincipal --> Carrera : Carga Escena
     
-    Trigger[Meta Cruzada] --> Gestor{NuevaVuelta()}
+    state Carrera {
+        [*] --> Conduccion
+        Conduccion --> PitStop : Trigger Entrada
+        
+        state PitStop {
+            [*] --> AutoAparcamiento
+            AutoAparcamiento --> AnimacionMecanicos : Camara Lateral
+            AnimacionMecanicos --> SalidaTurbo : Force Impulse
+        }
+        
+        PitStop --> Conduccion
+        Conduccion --> Victoria : Vuelta 3/3
+    }
+
+    state Victoria {
+        [*] --> CinematicPodio
+        CinematicPodio --> BaileLoop
+        BaileLoop --> MenuPrincipal : Wait(8s)
+    }
 ```
 
 ## 🕹️ Controles (Acción / Tecla)
@@ -111,17 +121,6 @@ git clone https://github.com/dsanchezp25/unity-racing-physics.git
 1. Ve a `Assets/Scenes`.
 2. Abre la escena **MenuPrincipal**.
 3. Dale al **Play**.
-
----
-
-## 🤝 Contribuciones y Futuro
-
-Ideas para futuras expansiones del proyecto (Roadmap):
-
-- [ ] **Sonido Avanzado:** Cambio de tono del motor según RPM.
-- [ ] **Nitro / Turbo:** Impulso con distorsión de cámara (FOV).
-- [ ] **Base de Datos:** Guardado de "Best Lap" en SQL/Local.
-- [ ] **Daños:** Deformación de malla al chocar.
 
 ---
 
