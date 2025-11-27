@@ -8,14 +8,14 @@ Simulador de carreras estilo Low-Poly / Arcade desarrollado en Unity. Este proye
 
 🔗 **Repo URL:** https://github.com/dsanchezp25/unity-racing-physics
 
-![Drift Demo](./Assets/Images/gif_coche.gif)
+![Drift Demo](./Assets/Images/funcionamiento.gif)
 *Demostración del sistema de físicas, partículas y marcas de neumático.*
 
 ## 📸 Galería
 
 | Menú de Selección |
 | :---: |
-| ![Menu](./Assets/Images/menuPrincipal.png) |
+| ![Menu](./Assets/Images/inicio.gif) |
 
 ### Variantes del Circuito (Ciclo Día/Noche)
 El juego adapta la iluminación global según el circuito seleccionado:
@@ -23,7 +23,12 @@ El juego adapta la iluminación global según el circuito seleccionado:
 | Circuito 1 (Día) | Circuito 2 (Atardecer) | Circuito 3 (Noche) |
 | :---: | :---: | :---: |
 | ![Dia](./Assets/Images/circuito1.png) | ![Tarde](./Assets/Images/circuito2.png) | ![Noche](./Assets/Images/circuito3.png) |
-*(Nota: Reemplazar estos links con capturas reales de la carpeta Assets para mostrar el Post-Processing)*
+
+### Nuevas vistas
+
+| PODIO | BOXES |
+| :---: | :---: |
+| ![Podio](./Assets/Images/campeon.gif) | ![Tarde](./Assets/Images/boxes.gif) |
 
 ## ✨ Características Principales
 
